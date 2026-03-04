@@ -55,8 +55,8 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # ── WireMD defaults ───────────────────────────────────────────────────────────
 ENV WIREMD_STYLE=sketch
-ENV WIREMD_WIDTH=1280
-ENV WIREMD_HEIGHT=800
+ENV WIREMD_WIDTH=0
+ENV WIREMD_HEIGHT=0
 
 # ── Copy render script ────────────────────────────────────────────────────────
 WORKDIR /app
