@@ -1,0 +1,1 @@
+podman build -t wiremd-png:latest .
