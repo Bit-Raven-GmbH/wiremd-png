@@ -27,8 +27,8 @@ for (let i = 0; i < args.length; i++) {
 
 const inputFile = positional[0];
 const style     = flags.style  || process.env.WIREMD_STYLE  || 'sketch';
-const width     = parseInt(flags.width  || process.env.WIREMD_WIDTH  || '1280', 10);
-const height    = parseInt(flags.height || process.env.WIREMD_HEIGHT || '800',  10);
+const width     = parseInt(flags.width  || process.env.WIREMD_WIDTH  || '0', 10);
+const height    = parseInt(flags.height || process.env.WIREMD_HEIGHT || '0',  10);
 
 // ─── Help ────────────────────────────────────────────────────────────────────
 if (!inputFile || flags.help) {
@@ -44,8 +44,8 @@ Usage:
 
 Options:
   --style=<s>   Visual style: sketch|clean|wireframe|tailwind|material|brutal
-  --width=<px>  Viewport width  (default: 1280)
-  --height=<px> Viewport height (default: 800)
+  --width=<px>  Viewport width  (default: 0)
+  --height=<px> Viewport height (default: 0)
   --help        Show this help
 `);
     process.exit(inputFile ? 0 : 1);
