@@ -61,15 +61,19 @@ log(`📐  Size   : ${width}×${height}`);
 log('');
 
 // ─── Render HTML via wiremd CLI ───────────────────────────────────────────────
-async function renderHtml(mdPath, styleName) {
-    const tmpDir  = fs.mkdtempSync(path.join(os.tmpdir(), 'wiremd-'));
+async function renderAndScreenshot(mdPath, styleName, vpWidth, vpHeight) {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wiremd-'));
     try {
+        const srcDir = path.dirname(mdPath);
         const baseName = path.basename(mdPath);
-        const tmpMd    = path.join(tmpDir, baseName);
-        fs.copyFileSync(mdPath, tmpMd);
+        const tmpMd = path.join(tmpDir, baseName);
+
+        // Copy everything from the input file's directory to the temp dir
+        // This allows relative images/assets to be found during build and render
+        fs.cpSync(srcDir, tmpDir, { recursive: true });
 
         const styleArg = styleName !== 'sketch' ? ` --style ${styleName}` : '';
-        const tmpHtml  = path.join(tmpDir, 'output.html');
+        const tmpHtml = path.join(tmpDir, 'output.html');
 
         try {
             execSync(`wiremd "${tmpMd}"${styleArg} --output "${tmpHtml}"`, { cwd: tmpDir, stdio: 'pipe' });
@@ -86,7 +90,8 @@ async function renderHtml(mdPath, styleName) {
         if (!htmlFile) htmlFile = walkFind(tmpDir, f => f.endsWith('.html'));
         if (!htmlFile) throw new Error('wiremd produced no HTML — check the input file.');
 
-        return fs.readFileSync(htmlFile, 'utf8');
+        // Take screenshot using the HTML file in the temp directory so Puppeteer can resolve local assets
+        await screenshot(htmlFile, vpWidth, vpHeight);
     } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -102,10 +107,8 @@ function walkFind(dir, predicate) {
 }
 
 // ─── Screenshot via Puppeteer → stdout ───────────────────────────────────────
-async function screenshot(htmlContent, vpWidth, vpHeight) {
-    const tmpHtml = path.join(os.tmpdir(), `wiremd-${Date.now()}.html`);
+async function screenshot(htmlFile, vpWidth, vpHeight) {
     const tmpPng  = path.join(os.tmpdir(), `wiremd-${Date.now()}.png`);
-    fs.writeFileSync(tmpHtml, htmlContent, 'utf8');
 
     const browser = await puppeteer.launch({
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
@@ -116,12 +119,11 @@ async function screenshot(htmlContent, vpWidth, vpHeight) {
     try {
         const page = await browser.newPage();
         await page.setViewport({ width: vpWidth, height: vpHeight });
-        await page.goto(`file://${tmpHtml}`, { waitUntil: 'networkidle0', timeout: 30_000 });
+        await page.goto(`file://${htmlFile}`, { waitUntil: 'networkidle0', timeout: 30_000 });
         await new Promise(r => setTimeout(r, 300));
         await page.screenshot({ path: tmpPng, fullPage: true });
     } finally {
         await browser.close();
-        fs.rmSync(tmpHtml, { force: true });
     }
 
     // Write PNG bytes to stdout, then clean up
@@ -135,9 +137,6 @@ async function screenshot(htmlContent, vpWidth, vpHeight) {
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 (async () => {
-    log('⏳  Rendering HTML with wiremd …');
-    const html = await renderHtml(absInput, style);
-
-    log('📸  Capturing PNG with Puppeteer …');
-    await screenshot(html, width, height);
+    log('⏳  Rendering HTML and capturing PNG …');
+    await renderAndScreenshot(absInput, style, width, height);
 })().catch(err => fail(err.message));

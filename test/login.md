@@ -15,3 +15,7 @@ Sign in with your credentials
 ---
 
 Don't have an account? [Register]
+
+![Pic](img.png)
+
+<img src="img.png" width="100" height="100"></img>
