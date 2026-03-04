@@ -2,11 +2,11 @@
 
 A simple project to transform [WireMD](https://github.com/akonan/wiremd) to PNGs.
 
-## Run
+## Run using the pre-built image
 - podman
-  - `podman run -it -v $PWD:/data:Z wiremd-png:latest test/login.md > login.png`
+  - `podman run --rm -v $PWD:/data:Z docker.io/mauricemueller/wiremd-png:latest --style sketch /data/test/login.md > login.png`
 - docker
-  - `docker run -it -v $PWD:/data:Z wiremd-png:latest test/login.md > login.png`
+  - `docker run --rm -v $PWD:/data:Z mauricemueller/wiremd-png:latest --style sketch /data/test/login.md > login.png`
 - adapt the defaults by adding the following flags
   - --style clean|sketch|wireframe|tailwind|material|brutal
     - by default, it is 'sketch'
@@ -19,3 +19,9 @@ A simple project to transform [WireMD](https://github.com/akonan/wiremd) to PNGs
 
 - clone the repo
 - run the corresponding build script (podman/docker)
+
+### Run the local image
+- podman
+  - `podman run --rm -v $PWD:/data:Z wiremd-png:latest --style sketch /data/test/login.md > login.png`
+- docker
+  - `docker run --rm -v $PWD:/data:Z wiremd-png:latest --style sketch /data/test/login.md > login.png`
