@@ -25,3 +25,18 @@ A simple project to transform [WireMD](https://github.com/akonan/wiremd) to PNGs
   - `podman run --rm -v $PWD:/data:Z wiremd-png:latest --style sketch /data/test/login.md > login.png`
 - docker
   - `docker run --rm -v $PWD:/data:Z wiremd-png:latest --style sketch /data/test/login.md > login.png`
+
+## Dev
+
+### Build and push
+
+Build and Push with GitHub Action
+
+  - Go to GitHub Actions
+  - Select Build and Push docker image
+  - Click Run workflow
+  - Select the branch with the Dockerfile to use
+  - Insert the tag you want the new image to have
+  - Start workflow
+
+The action automatically builds the current image and pushes it to docker.io/mauricemueller/wiremd-png with the specified tag as well as the tag latest.
